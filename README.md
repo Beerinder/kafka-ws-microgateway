@@ -16,8 +16,12 @@ Start a local WS echo server:
 go run main.go -server
 ```
 
-Start the microgateway:
+Build the microgateway and start it with the following commands:
+
 ```bash
+flogo create -f microgateway.json
+cd microgateway
+flogo build
 bin/microgateway
 ```
 
