@@ -1,0 +1,90 @@
+{
+  "name": "microgateway",
+  "type": "flogo:app",
+  "version": "1.1.0",
+  "description": "This microgateway subscibes to a Kafka topic, parses new messages and then relays updates to a streaming flight status dashboard WS service",
+  "properties": null,
+  "channels": null,
+  "triggers": [
+    {
+      "id": "flogo-kafka",
+      "ref": "github.com/project-flogo/contrib/trigger/kafka",
+      "settings": {
+        "brokerUrls" : "127.0.0.1:9092",
+        "trustStore" : ""
+      },
+      "handlers": [
+        {
+          "settings": {
+            "topic": "flightalerts"
+          },
+          "actions": [
+            {
+              "id": "microgateway:Websocket"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "id": "microgateway:Websocket",
+      "compressed": false,
+      "data": {
+        "name": "Websocket",
+        "steps": [
+          {
+            "service": "filter",
+            "input": {
+              "parameters.message": "=$.payload.message"
+            }
+          },
+          {
+            "service": "Websocket",
+            "input": {
+              "message": "=$.filter.outputs.result.message"
+            }
+          }
+        ],
+        "responses": [
+          {
+            "error": false,
+            "output": {
+              "code": 200,
+              "data": ""
+            }
+          }
+        ],
+        "services": [
+          {
+            "name": "Websocket",
+            "description": "Send a websocket message",
+            "ref": "github.com/project-flogo/websocket/activity/ws",
+            "settings": {
+              "uri": "ws://127.0.0.1:8080/ws"
+            }
+          },
+          {
+            "name": "filter",
+            "description": "Filter json",
+            "ref": "github.com/project-flogo/contrib/activity/jsexec",
+            "settings": {
+              "script": "message = JSON.parse(parameters.message); delete message['Aircraft']; delete message['Duration']; delete message['Route']; delete message['Cabin']; delete message['TaxiTime']; delete message['AverageDelay']; result.message = message;"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "actions": [
+    {
+      "ref": "github.com/project-flogo/microgateway",
+      "settings": {
+        "uri": "microgateway:Websocket"
+      },
+      "id": "microgateway:Websocket",
+      "metadata": null
+    }
+  ]
+}
