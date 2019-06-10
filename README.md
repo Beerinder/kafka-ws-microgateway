@@ -8,7 +8,8 @@ Install and initialize an Apache Kafka cluster: https://kafka.apache.org/quickst
 
 Create a topic called: flightalerts
 
-In a new terminal window open establish a new Producer connection to the Kafka cluster's flightalerts topic
+In a new terminal window establish a new Producer connection to the Kafka cluster's "flightalerts" topic
+
 
 Start a local WS echo server:
 ```bash
